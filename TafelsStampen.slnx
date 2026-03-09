@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/TafelsStampen.Application/TafelsStampen.Application.csproj" />
+    <Project Path="src/TafelsStampen.Console/TafelsStampen.Console.csproj" />
+    <Project Path="src/TafelsStampen.Domain/TafelsStampen.Domain.csproj" />
+    <Project Path="src/TafelsStampen.Infrastructure/TafelsStampen.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/TafelsStampen.Application.Tests/TafelsStampen.Application.Tests.csproj" />
+    <Project Path="tests/TafelsStampen.Domain.Tests/TafelsStampen.Domain.Tests.csproj" />
+    <Project Path="tests/TafelsStampen.Infrastructure.Tests/TafelsStampen.Infrastructure.Tests.csproj" />
+  </Folder>
+</Solution>
