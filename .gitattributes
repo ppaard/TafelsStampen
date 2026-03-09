@@ -1,0 +1,21 @@
+# Normalize line endings to LF in the repository, CRLF on Windows checkout
+* text=auto eol=lf
+
+# Force LF for these file types
+*.cs    text eol=lf
+*.csproj text eol=lf
+*.sln   text eol=lf
+*.slnx  text eol=lf
+*.json  text eol=lf
+*.yml   text eol=lf
+*.yaml  text eol=lf
+*.md    text eol=lf
+*.txt   text eol=lf
+*.editorconfig text eol=lf
+*.gitignore    text eol=lf
+*.gitattributes text eol=lf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.gif binary

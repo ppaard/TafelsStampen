@@ -396,3 +396,7 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+# Project-specific
+claude-prompt-and-roadmap.md
+.claude/
