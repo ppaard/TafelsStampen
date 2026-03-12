@@ -11,8 +11,6 @@ public class HallOfFameScherm : IScherm
 {
     private readonly IMediator _mediator;
 
-    private const string OverallOptie = "🏆  Overall (alle tafels)";
-    private const string PerTafelOptie = "📊  Per tafel";
     private const string TerugOptie = "⬅️   Terug";
 
     private const string AlleModiOptie = "🔀  Alle";
@@ -26,55 +24,64 @@ public class HallOfFameScherm : IScherm
 
     public async Task ToonAsync()
     {
+        int? tafelFilter = null;
+        GameMode? modusFilter = null;
+
         while (true)
         {
             AsciiArt.Toon();
             Thema.SchrijfSectieHeader("Hall of Fame");
 
-            var keuze = AnsiConsole.Prompt(
-                new SelectionPrompt<string>()
-                    .Title("[yellow]Bekijk:[/]")
-                    .AddChoices(OverallOptie, PerTafelOptie, TerugOptie));
+            // 1. Data ophalen
+            var entries = tafelFilter == null
+                ? (await _mediator.QueryAsync(new GetHallOfFameOverallQuery(modusFilter)))
+                    .Select(e => (e.Rank, e.PlayerName, e.TableNumber, e.TotalTimeMs, e.ErrorCount, e.Date)).ToList()
+                : (await _mediator.QueryAsync(new GetHallOfFameByTableQuery(tafelFilter.Value, modusFilter)))
+                    .Select(e => (e.Rank, e.PlayerName, e.TableNumber, e.TotalTimeMs, e.ErrorCount, e.Date)).ToList();
 
-            if (keuze == TerugOptie) return;
+            // 2. Tabel tonen
+            var titelTafel = tafelFilter == null ? "Overall Hall of Fame" : $"Hall of Fame — Tafel {tafelFilter}";
+            var titelModus = modusFilter switch { GameMode.Volgorde => " — Oefenen", GameMode.Willekeurig => " — Spelen", _ => "" };
+            ToonTabel(entries, $"{titelTafel}{titelModus}");
 
-            var modusKeuze = AnsiConsole.Prompt(
-                new SelectionPrompt<string>()
-                    .Title("[yellow]Welke modus?[/]")
-                    .AddChoices(AlleModiOptie, AlleenVolgorde, AlleenWillekeurig));
-
-            GameMode? modeFilter = modusKeuze switch
+            // 3. Filter-menu
+            var tafelLabel = tafelFilter == null ? "📊  Tafel: Alle tafels" : $"📊  Tafel: Tafel {tafelFilter}";
+            var modusLabel = modusFilter switch
             {
-                AlleenVolgorde    => GameMode.Volgorde,
-                AlleenWillekeurig => GameMode.Willekeurig,
-                _                 => null
+                GameMode.Volgorde    => "🎯  Modus: Oefenen",
+                GameMode.Willekeurig => "🎯  Modus: Spelen",
+                _                    => "🎯  Modus: Alle"
             };
 
-            string modusSuffix = modusKeuze switch
-            {
-                AlleenVolgorde    => " — Oefenen",
-                AlleenWillekeurig => " — Spelen",
-                _                 => ""
-            };
+            var actie = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title("[yellow]Filter of ga terug:[/]")
+                    .AddChoices(tafelLabel, modusLabel, TerugOptie));
 
-            if (keuze == OverallOptie)
+            if (actie == TerugOptie) return;
+
+            if (actie == tafelLabel)
             {
-                var entries = await _mediator.QueryAsync(new GetHallOfFameOverallQuery(modeFilter));
-                ToonTabel(entries.Select(e => (e.Rank, e.PlayerName, e.TableNumber, e.TotalTimeMs, e.ErrorCount, e.Date)).ToList(), $"Overall Hall of Fame{modusSuffix}");
-            }
-            else
-            {
-                var tafelKeuze = AnsiConsole.Prompt(
+                var keuzes = new[] { "Alle tafels" }.Concat(Enumerable.Range(1, 10).Select(i => $"Tafel {i}")).ToList();
+                var gekozen = AnsiConsole.Prompt(
                     new SelectionPrompt<string>()
                         .Title("[yellow]Welke tafel?[/]")
-                        .AddChoices(Enumerable.Range(1, 10).Select(i => $"Tafel {i}")));
-
-                var tafelNr = Thema.ParseTafelKeuze(tafelKeuze);
-                var entries = await _mediator.QueryAsync(new GetHallOfFameByTableQuery(tafelNr, modeFilter));
-                ToonTabel(entries.Select(e => (e.Rank, e.PlayerName, e.TableNumber, e.TotalTimeMs, e.ErrorCount, e.Date)).ToList(), $"Hall of Fame — Tafel {tafelNr}{modusSuffix}");
+                        .AddChoices(keuzes));
+                tafelFilter = gekozen == "Alle tafels" ? null : Thema.ParseTafelKeuze(gekozen);
             }
-
-            Thema.WachtOpEnter("Druk op Enter om door te gaan...");
+            else // modusLabel
+            {
+                var gekozen = AnsiConsole.Prompt(
+                    new SelectionPrompt<string>()
+                        .Title("[yellow]Welke modus?[/]")
+                        .AddChoices(AlleModiOptie, AlleenVolgorde, AlleenWillekeurig));
+                modusFilter = gekozen switch
+                {
+                    AlleenVolgorde    => GameMode.Volgorde,
+                    AlleenWillekeurig => GameMode.Willekeurig,
+                    _                 => null
+                };
+            }
         }
     }
 
