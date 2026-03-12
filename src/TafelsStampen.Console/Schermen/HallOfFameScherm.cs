@@ -1,6 +1,7 @@
 namespace TafelsStampen.Console.Schermen;
 using Spectre.Console;
 using TafelsStampen.Application.Mediator;
+using TafelsStampen.Application.Queries;
 using TafelsStampen.Application.Queries.GetHallOfFameByTable;
 using TafelsStampen.Application.Queries.GetHallOfFameOverall;
 using TafelsStampen.Application.Queries.GetPlayers;
@@ -22,6 +23,12 @@ public class HallOfFameScherm : IScherm
     private const string AlleenVolgorde = "✏️  Oefenen";
     private const string AlleenWillekeurig = "🎮  Spelen";
 
+    private const string AllePeriodeOptie = "🗓️  Alles";
+    private const string PeriodeVandaag   = "🗓️  Vandaag";
+    private const string PeriodeDezeWeek  = "🗓️  Deze week";
+    private const string PeriodeDezeMaand = "🗓️  Deze maand";
+    private const string PeriodeDitJaar   = "🗓️  Dit jaar";
+
     public HallOfFameScherm(IMediator mediator)
     {
         _mediator = mediator;
@@ -33,6 +40,7 @@ public class HallOfFameScherm : IScherm
         GameMode? modusFilter = null;
         Guid? spelerFilterId = null;
         string? spelerFilterNaam = null;
+        HallOfFamePeriode periodeFilter = HallOfFamePeriode.DezeWeek;
         int pagina = 0;
 
         var spelers = await _mediator.QueryAsync(new GetPlayersQuery());
@@ -44,9 +52,9 @@ public class HallOfFameScherm : IScherm
 
             // 1. Data ophalen
             var entries = tafelFilter == null
-                ? (await _mediator.QueryAsync(new GetHallOfFameOverallQuery(modusFilter, spelerFilterId)))
+                ? (await _mediator.QueryAsync(new GetHallOfFameOverallQuery(modusFilter, spelerFilterId, periodeFilter)))
                     .Select(e => (e.Rank, e.PlayerName, e.TableNumber, e.TotalTimeMs, e.ErrorCount, e.Date)).ToList()
-                : (await _mediator.QueryAsync(new GetHallOfFameByTableQuery(tafelFilter.Value, modusFilter, spelerFilterId)))
+                : (await _mediator.QueryAsync(new GetHallOfFameByTableQuery(tafelFilter.Value, modusFilter, spelerFilterId, periodeFilter)))
                     .Select(e => (e.Rank, e.PlayerName, e.TableNumber, e.TotalTimeMs, e.ErrorCount, e.Date)).ToList();
 
             // 2. Paginering berekenen
@@ -55,13 +63,29 @@ public class HallOfFameScherm : IScherm
             var paginaEntries = entries.Skip(pagina * PaginaGrootte).Take(PaginaGrootte).ToList();
 
             // 3. Tabel tonen
-            var titelTafel  = tafelFilter == null ? "Overall Hall of Fame" : $"Hall of Fame — Tafel {tafelFilter}";
-            var titelModus  = modusFilter switch { GameMode.Volgorde => " — Oefenen", GameMode.Willekeurig => " — Spelen", _ => "" };
-            var titelSpeler = spelerFilterNaam == null ? "" : $" — {spelerFilterNaam}";
+            var titelTafel   = tafelFilter == null ? "Overall Hall of Fame" : $"Hall of Fame — Tafel {tafelFilter}";
+            var titelModus   = modusFilter switch { GameMode.Volgorde => " — Oefenen", GameMode.Willekeurig => " — Spelen", _ => "" };
+            var titelSpeler  = spelerFilterNaam == null ? "" : $" — {spelerFilterNaam}";
+            var titelPeriode = periodeFilter switch
+            {
+                HallOfFamePeriode.Vandaag   => " — Vandaag",
+                HallOfFamePeriode.DezeWeek  => " — Deze week",
+                HallOfFamePeriode.DezeMaand => " — Deze maand",
+                HallOfFamePeriode.DitJaar   => " — Dit jaar",
+                _                           => ""
+            };
             var paginaTitel = aantalPaginas > 1 ? $" — Pagina {pagina + 1} van {aantalPaginas}" : "";
-            ToonTabel(paginaEntries, $"{titelTafel}{titelModus}{titelSpeler}{paginaTitel}");
+            ToonTabel(paginaEntries, $"{titelTafel}{titelModus}{titelSpeler}{titelPeriode}{paginaTitel}");
 
             // 4. Filter-menu
+            var periodeLabel = periodeFilter switch
+            {
+                HallOfFamePeriode.Vandaag   => "🗓️  Periode: Vandaag",
+                HallOfFamePeriode.DezeWeek  => "🗓️  Periode: Deze week",
+                HallOfFamePeriode.DezeMaand => "🗓️  Periode: Deze maand",
+                HallOfFamePeriode.DitJaar   => "🗓️  Periode: Dit jaar",
+                _                           => "🗓️  Periode: Alles"
+            };
             var tafelLabel  = tafelFilter == null ? "📊  Tafel: Alle tafels" : $"📊  Tafel: Tafel {tafelFilter}";
             var modusLabel  = modusFilter switch
             {
@@ -73,7 +97,7 @@ public class HallOfFameScherm : IScherm
 
             var menuKeuzes = new List<string>();
             if (pagina > 0) menuKeuzes.Add(VorigePagina);
-            menuKeuzes.AddRange([tafelLabel, modusLabel, spelerLabel]);
+            menuKeuzes.AddRange([periodeLabel, tafelLabel, modusLabel, spelerLabel]);
             if (aantalPaginas > 1 && pagina < aantalPaginas - 1) menuKeuzes.Add(VolgendePagina);
             menuKeuzes.Add(TerugOptie);
 
@@ -86,7 +110,24 @@ public class HallOfFameScherm : IScherm
             if (actie == VorigePagina)   { pagina--; continue; }
             if (actie == TerugOptie) return;
 
-            if (actie == tafelLabel)
+            if (actie == periodeLabel)
+            {
+                var gekozen = AnsiConsole.Prompt(
+                    new SelectionPrompt<string>()
+                        .Title("[yellow]Welke periode?[/]")
+                        .AddChoices(PeriodeDezeWeek, PeriodeVandaag, PeriodeDezeMaand,
+                                    PeriodeDitJaar, AllePeriodeOptie));
+                periodeFilter = gekozen switch
+                {
+                    PeriodeVandaag   => HallOfFamePeriode.Vandaag,
+                    PeriodeDezeMaand => HallOfFamePeriode.DezeMaand,
+                    PeriodeDitJaar   => HallOfFamePeriode.DitJaar,
+                    AllePeriodeOptie => HallOfFamePeriode.Alles,
+                    _                => HallOfFamePeriode.DezeWeek
+                };
+                pagina = 0;
+            }
+            else if (actie == tafelLabel)
             {
                 var keuzes = new[] { "Alle tafels" }.Concat(Enumerable.Range(1, 10).Select(i => $"Tafel {i}")).ToList();
                 var gekozen = AnsiConsole.Prompt(
