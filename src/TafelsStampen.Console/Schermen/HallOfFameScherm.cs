@@ -12,6 +12,10 @@ public class HallOfFameScherm : IScherm
 {
     private readonly IMediator _mediator;
 
+    private const int PaginaGrootte = 25;
+    private const string VolgendePagina = "➡️   Volgende pagina";
+    private const string VorigePagina   = "⬅️   Vorige pagina";
+
     private const string TerugOptie = "⬅️   Terug";
 
     private const string AlleModiOptie = "🔀  Alle";
@@ -29,6 +33,7 @@ public class HallOfFameScherm : IScherm
         GameMode? modusFilter = null;
         Guid? spelerFilterId = null;
         string? spelerFilterNaam = null;
+        int pagina = 0;
 
         var spelers = await _mediator.QueryAsync(new GetPlayersQuery());
 
@@ -44,13 +49,19 @@ public class HallOfFameScherm : IScherm
                 : (await _mediator.QueryAsync(new GetHallOfFameByTableQuery(tafelFilter.Value, modusFilter, spelerFilterId)))
                     .Select(e => (e.Rank, e.PlayerName, e.TableNumber, e.TotalTimeMs, e.ErrorCount, e.Date)).ToList();
 
-            // 2. Tabel tonen
+            // 2. Paginering berekenen
+            var aantalPaginas = (int)Math.Ceiling(entries.Count / (double)PaginaGrootte);
+            if (aantalPaginas > 0 && pagina >= aantalPaginas) pagina = aantalPaginas - 1;
+            var paginaEntries = entries.Skip(pagina * PaginaGrootte).Take(PaginaGrootte).ToList();
+
+            // 3. Tabel tonen
             var titelTafel  = tafelFilter == null ? "Overall Hall of Fame" : $"Hall of Fame — Tafel {tafelFilter}";
             var titelModus  = modusFilter switch { GameMode.Volgorde => " — Oefenen", GameMode.Willekeurig => " — Spelen", _ => "" };
             var titelSpeler = spelerFilterNaam == null ? "" : $" — {spelerFilterNaam}";
-            ToonTabel(entries, $"{titelTafel}{titelModus}{titelSpeler}");
+            var paginaTitel = aantalPaginas > 1 ? $" — Pagina {pagina + 1} van {aantalPaginas}" : "";
+            ToonTabel(paginaEntries, $"{titelTafel}{titelModus}{titelSpeler}{paginaTitel}");
 
-            // 3. Filter-menu
+            // 4. Filter-menu
             var tafelLabel  = tafelFilter == null ? "📊  Tafel: Alle tafels" : $"📊  Tafel: Tafel {tafelFilter}";
             var modusLabel  = modusFilter switch
             {
@@ -60,11 +71,19 @@ public class HallOfFameScherm : IScherm
             };
             var spelerLabel = spelerFilterNaam == null ? "👤  Speler: Alle spelers" : $"👤  Speler: {spelerFilterNaam}";
 
+            var menuKeuzes = new List<string>();
+            if (pagina > 0) menuKeuzes.Add(VorigePagina);
+            menuKeuzes.AddRange([tafelLabel, modusLabel, spelerLabel]);
+            if (aantalPaginas > 1 && pagina < aantalPaginas - 1) menuKeuzes.Add(VolgendePagina);
+            menuKeuzes.Add(TerugOptie);
+
             var actie = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                     .Title("[yellow]Filter of ga terug:[/]")
-                    .AddChoices(tafelLabel, modusLabel, spelerLabel, TerugOptie));
+                    .AddChoices(menuKeuzes));
 
+            if (actie == VolgendePagina) { pagina++; continue; }
+            if (actie == VorigePagina)   { pagina--; continue; }
             if (actie == TerugOptie) return;
 
             if (actie == tafelLabel)
@@ -75,6 +94,7 @@ public class HallOfFameScherm : IScherm
                         .Title("[yellow]Welke tafel?[/]")
                         .AddChoices(keuzes));
                 tafelFilter = gekozen == "Alle tafels" ? null : Thema.ParseTafelKeuze(gekozen);
+                pagina = 0;
             }
             else if (actie == modusLabel)
             {
@@ -88,6 +108,7 @@ public class HallOfFameScherm : IScherm
                     AlleenWillekeurig => GameMode.Willekeurig,
                     _                 => null
                 };
+                pagina = 0;
             }
             else // spelerLabel
             {
@@ -108,6 +129,7 @@ public class HallOfFameScherm : IScherm
                     spelerFilterId   = speler.Id;
                     spelerFilterNaam = speler.Name;
                 }
+                pagina = 0;
             }
         }
     }
