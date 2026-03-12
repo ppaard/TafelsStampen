@@ -47,4 +47,23 @@ public class GetHallOfFameByTableQueryHandlerTests
         result.Count.ShouldBe(1);
         result[0].PlayerName.ShouldBe("Jan");
     }
+
+    [Fact]
+    public async Task HandleAsync_PlayerFilter_ReturnsOnlyMatchingPlayer()
+    {
+        var janId = Guid.NewGuid();
+        var entries = new List<HallOfFameEntry>
+        {
+            new(janId,          "Jan",  3, 3000, 0),
+            new(Guid.NewGuid(), "Lisa", 3, 4000, 0),
+        };
+        var repo = new Mock<IHallOfFameRepository>();
+        repo.Setup(r => r.GetByTableAsync(3)).ReturnsAsync(entries);
+
+        var handler = new GetHallOfFameByTableQueryHandler(repo.Object, NullLogger<GetHallOfFameByTableQueryHandler>.Instance);
+        var result = await handler.HandleAsync(new GetHallOfFameByTableQuery(3, PlayerFilter: janId));
+
+        result.Count.ShouldBe(1);
+        result[0].PlayerName.ShouldBe("Jan");
+    }
 }

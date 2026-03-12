@@ -21,6 +21,7 @@ public class GetHallOfFameByTableQueryHandler : IQueryHandler<GetHallOfFameByTab
         var entries = await _hallOfFameRepository.GetByTableAsync(query.TableNumber);
         return entries
             .Where(e => query.ModeFilter == null || e.Mode == query.ModeFilter)
+            .Where(e => query.PlayerFilter == null || e.PlayerId == query.PlayerFilter)
             .OrderBy(e => e.TotalTimeMs)
             .ThenBy(e => e.ErrorCount)
             .Select((e, i) => new HallOfFameEntryDto(i + 1, e.PlayerName, e.TableNumber, e.TotalTimeMs, e.ErrorCount, e.Date, e.Mode))
