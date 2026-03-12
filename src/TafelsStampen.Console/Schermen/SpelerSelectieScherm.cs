@@ -13,6 +13,7 @@ public class SpelerSelectieScherm : IScherm
     private readonly TafelKeuzeScherm _tafelKeuze;
 
     private const string NieuweSpelerOptie = "➕  Nieuwe speler";
+    private const string TerugOptie = "⬅️  Terug";
 
     public GameMode Modus { get; set; }
 
@@ -24,49 +25,61 @@ public class SpelerSelectieScherm : IScherm
 
     public async Task ToonAsync()
     {
-        AsciiArt.Toon();
-        Thema.SchrijfSectieHeader("Speler selecteren");
-
-        var spelers = await _mediator.QueryAsync(new GetPlayersQuery());
-
-        Guid spelerId;
-        string naam;
-
-        if (spelers.Count > 0)
+        while (true)
         {
-            var keuzes = spelers.Select(s => s.Name).ToList();
-            keuzes.Add(NieuweSpelerOptie);
+            AsciiArt.Toon();
+            Thema.SchrijfSectieHeader("Speler selecteren");
 
-            var keuze = AnsiConsole.Prompt(
-                new SelectionPrompt<string>()
-                    .Title("[yellow]Kies een speler of maak een nieuwe aan:[/]")
-                    .AddChoices(keuzes));
+            var spelers = await _mediator.QueryAsync(new GetPlayersQuery());
 
-            if (keuze == NieuweSpelerOptie)
+            Guid spelerId;
+            string naam;
+
+            if (spelers.Count > 0)
             {
-                naam = VraagNaam();
-                spelerId = await _mediator.SendAsync(new RegisterPlayerCommand(naam));
+                var keuzes = spelers.Select(s => s.Name).ToList();
+                keuzes.Add(NieuweSpelerOptie);
+                keuzes.Add(TerugOptie);
+
+                var keuze = AnsiConsole.Prompt(
+                    new SelectionPrompt<string>()
+                        .Title("[yellow]Kies een speler of maak een nieuwe aan:[/]")
+                        .AddChoices(keuzes));
+
+                if (keuze == TerugOptie)
+                    return;
+
+                if (keuze == NieuweSpelerOptie)
+                {
+                    naam = VraagNaam();
+                    spelerId = await _mediator.SendAsync(new RegisterPlayerCommand(naam));
+                }
+                else
+                {
+                    var speler = spelers.First(s => s.Name == keuze);
+                    spelerId = speler.Id;
+                    naam = speler.Name;
+                }
             }
             else
             {
-                var speler = spelers.First(s => s.Name == keuze);
-                spelerId = speler.Id;
-                naam = speler.Name;
+                AnsiConsole.MarkupLine("[grey]Nog geen spelers. Voer een naam in:[/]");
+                naam = VraagNaam();
+                spelerId = await _mediator.SendAsync(new RegisterPlayerCommand(naam));
             }
-        }
-        else
-        {
-            AnsiConsole.MarkupLine("[grey]Nog geen spelers. Voer een naam in:[/]");
-            naam = VraagNaam();
-            spelerId = await _mediator.SendAsync(new RegisterPlayerCommand(naam));
-        }
 
-        AnsiConsole.MarkupLine($"\n[green]Welkom, [bold]{Markup.Escape(naam)}[/]![/]\n");
-        await Task.Delay(800);
+            AnsiConsole.MarkupLine($"\n[green]Welkom, [bold]{Markup.Escape(naam)}[/]![/]\n");
+            await Task.Delay(800);
 
-        _tafelKeuze.SpelerId = spelerId;
-        _tafelKeuze.Modus = Modus;
-        await _tafelKeuze.ToonAsync();
+            _tafelKeuze.SpelerId = spelerId;
+            _tafelKeuze.Modus = Modus;
+            await _tafelKeuze.ToonAsync();
+
+            if (_tafelKeuze.TerugGedrukt)
+                continue;
+
+            return;
+        }
     }
 
     private static string VraagNaam() =>

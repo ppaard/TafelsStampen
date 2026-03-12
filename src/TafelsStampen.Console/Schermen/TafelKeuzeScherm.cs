@@ -8,8 +8,11 @@ public class TafelKeuzeScherm : IScherm
 {
     private readonly SpelScherm _spelScherm;
 
+    private const string TerugOptie = "⬅️  Terug";
+
     public Guid SpelerId { get; set; }
     public GameMode Modus { get; set; }
+    public bool TerugGedrukt { get; private set; }
 
     public TafelKeuzeScherm(SpelScherm spelScherm)
     {
@@ -18,6 +21,8 @@ public class TafelKeuzeScherm : IScherm
 
     public async Task ToonAsync()
     {
+        TerugGedrukt = false;
+
         AsciiArt.Toon();
         Thema.SchrijfSectieHeader("Kies een tafel");
 
@@ -32,11 +37,19 @@ public class TafelKeuzeScherm : IScherm
             ? "[yellow]Welke tafel wil je oefenen?[/]"
             : "[yellow]Welke tafel wil je spelen?[/]";
 
+        var opties = Enumerable.Range(1, 10).Select(i => $"Tafel {i}").Append(TerugOptie);
+
         var keuze = AnsiConsole.Prompt(
             new SelectionPrompt<string>()
                 .Title(titel)
-                .PageSize(10)
-                .AddChoices(Enumerable.Range(1, 10).Select(i => $"Tafel {i}")));
+                .PageSize(11)
+                .AddChoices(opties));
+
+        if (keuze == TerugOptie)
+        {
+            TerugGedrukt = true;
+            return;
+        }
 
         _spelScherm.SpelerId = SpelerId;
         _spelScherm.TafelNummer = Thema.ParseTafelKeuze(keuze);
