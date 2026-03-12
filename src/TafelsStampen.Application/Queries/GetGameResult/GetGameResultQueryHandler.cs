@@ -34,6 +34,7 @@ public class GetGameResultQueryHandler : IQueryHandler<GetGameResultQuery, GameR
 
         return new GameResultDto(
             session.Id,
+            session.PlayerId,
             player.Name.Value,
             session.TableNumber.Value,
             session.Mode.ToString(),

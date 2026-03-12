@@ -16,6 +16,15 @@ public class JsonGameSessionRepository : JsonRepositoryBase<GameSessionJson>, IG
         return match is null ? null : MapToDomain(match);
     }
 
+    public async Task<IReadOnlyList<GameSession>> GetByPlayerTableModeAsync(Guid playerId, int tableNumber, GameMode mode)
+    {
+        var all = await ReadAllAsync();
+        return all
+            .Where(s => s.PlayerId == playerId && s.TableNumber == tableNumber && (GameMode)s.Mode == mode && s.FinishedAt.HasValue)
+            .Select(MapToDomain)
+            .ToList();
+    }
+
     public async Task SaveAsync(GameSession session)
     {
         var all = await ReadAllAsync();

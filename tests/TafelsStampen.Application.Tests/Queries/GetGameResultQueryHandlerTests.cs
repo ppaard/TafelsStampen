@@ -27,6 +27,7 @@ public class GetGameResultQueryHandlerTests
         var handler = new GetGameResultQueryHandler(sessionRepo.Object, playerRepo.Object, NullLogger<GetGameResultQueryHandler>.Instance);
         var result = await handler.HandleAsync(new GetGameResultQuery(session.Id));
 
+        result.PlayerId.ShouldBe(player.Id);
         result.PlayerName.ShouldBe("Jan");
         result.TableNumber.ShouldBe(4);
         result.Mode.ShouldBe("Willekeurig");
