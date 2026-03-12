@@ -9,4 +9,5 @@ public class HallOfFameEntryJson
     public long TotalTimeMs { get; set; }
     public int ErrorCount { get; set; }
     public DateTime Date { get; set; }
+    public string Mode { get; set; } = "Volgorde";
 }

@@ -20,9 +20,10 @@ public class GetHallOfFameOverallQueryHandler : IQueryHandler<GetHallOfFameOvera
         _logger.LogDebug("Algehele Hall of Fame ophalen");
         var entries = await _hallOfFameRepository.GetAllAsync();
         return entries
+            .Where(e => query.ModeFilter == null || e.Mode == query.ModeFilter)
             .OrderBy(e => e.TotalTimeMs)
             .ThenBy(e => e.ErrorCount)
-            .Select((e, i) => new HallOfFameEntryDto(i + 1, e.PlayerName, e.TableNumber, e.TotalTimeMs, e.ErrorCount, e.Date))
+            .Select((e, i) => new HallOfFameEntryDto(i + 1, e.PlayerName, e.TableNumber, e.TotalTimeMs, e.ErrorCount, e.Date, e.Mode))
             .ToList();
     }
 }

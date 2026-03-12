@@ -42,7 +42,8 @@ public class FinishGameCommandHandler : ICommandHandler<FinishGameCommand, Unit>
             player.Name.Value,
             session.TableNumber.Value,
             session.TotalTimeMs,
-            session.ErrorCount);
+            session.ErrorCount,
+            session.Mode);
         await _hallOfFameRepository.SaveAsync(entry);
 
         _logger.LogInformation(

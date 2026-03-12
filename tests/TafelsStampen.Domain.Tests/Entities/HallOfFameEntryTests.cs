@@ -1,6 +1,7 @@
 namespace TafelsStampen.Domain.Tests.Entities;
 using Shouldly;
 using TafelsStampen.Domain.Entities;
+using TafelsStampen.Domain.ValueObjects;
 
 public class HallOfFameEntryTests
 {
@@ -8,7 +9,7 @@ public class HallOfFameEntryTests
     public void Create_SetsAllPropertiesAndGeneratesId()
     {
         var playerId = Guid.NewGuid();
-        var entry = new HallOfFameEntry(playerId, "Jan", 3, 45000, 2);
+        var entry = new HallOfFameEntry(playerId, "Jan", 3, 45000, 2, GameMode.Willekeurig);
 
         entry.Id.ShouldNotBe(Guid.Empty);
         entry.PlayerId.ShouldBe(playerId);
@@ -16,7 +17,15 @@ public class HallOfFameEntryTests
         entry.TableNumber.ShouldBe(3);
         entry.TotalTimeMs.ShouldBe(45000);
         entry.ErrorCount.ShouldBe(2);
+        entry.Mode.ShouldBe(GameMode.Willekeurig);
         entry.Date.ShouldBeGreaterThan(DateTime.UtcNow.AddSeconds(-5));
+    }
+
+    [Fact]
+    public void Create_DefaultMode_IsVolgorde()
+    {
+        var entry = new HallOfFameEntry(Guid.NewGuid(), "Jan", 3, 45000, 0);
+        entry.Mode.ShouldBe(GameMode.Volgorde);
     }
 
     [Fact]
@@ -26,7 +35,7 @@ public class HallOfFameEntryTests
         var playerId = Guid.NewGuid();
         var date = new DateTime(2024, 3, 1, 12, 0, 0, DateTimeKind.Utc);
 
-        var entry = HallOfFameEntry.Reconstitute(id, playerId, "Kees", 5, 30000, 0, date);
+        var entry = HallOfFameEntry.Reconstitute(id, playerId, "Kees", 5, 30000, 0, date, GameMode.Willekeurig);
 
         entry.Id.ShouldBe(id);
         entry.PlayerId.ShouldBe(playerId);
@@ -35,5 +44,6 @@ public class HallOfFameEntryTests
         entry.TotalTimeMs.ShouldBe(30000);
         entry.ErrorCount.ShouldBe(0);
         entry.Date.ShouldBe(date);
+        entry.Mode.ShouldBe(GameMode.Willekeurig);
     }
 }

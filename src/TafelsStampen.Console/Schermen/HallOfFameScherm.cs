@@ -5,6 +5,7 @@ using TafelsStampen.Application.Queries.GetHallOfFameByTable;
 using TafelsStampen.Application.Queries.GetHallOfFameOverall;
 using TafelsStampen.Console.Navigatie;
 using TafelsStampen.Console.Stijl;
+using TafelsStampen.Domain.ValueObjects;
 
 public class HallOfFameScherm : IScherm
 {
@@ -13,6 +14,10 @@ public class HallOfFameScherm : IScherm
     private const string OverallOptie = "🏆  Overall (alle tafels)";
     private const string PerTafelOptie = "📊  Per tafel";
     private const string TerugOptie = "⬅️   Terug";
+
+    private const string AlleModiOptie = "🔀  Alle modi";
+    private const string AlleenVolgorde = "➡️   Alleen volgorde";
+    private const string AlleenWillekeurig = "🎲  Alleen willekeurig";
 
     public HallOfFameScherm(IMediator mediator)
     {
@@ -33,10 +38,29 @@ public class HallOfFameScherm : IScherm
 
             if (keuze == TerugOptie) return;
 
+            var modusKeuze = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title("[yellow]Welke modus?[/]")
+                    .AddChoices(AlleModiOptie, AlleenVolgorde, AlleenWillekeurig));
+
+            GameMode? modeFilter = modusKeuze switch
+            {
+                AlleenVolgorde    => GameMode.Volgorde,
+                AlleenWillekeurig => GameMode.Willekeurig,
+                _                 => null
+            };
+
+            string modusSuffix = modusKeuze switch
+            {
+                AlleenVolgorde    => " — Volgorde",
+                AlleenWillekeurig => " — Willekeurig",
+                _                 => ""
+            };
+
             if (keuze == OverallOptie)
             {
-                var entries = await _mediator.QueryAsync(new GetHallOfFameOverallQuery());
-                ToonTabel(entries.Select(e => (e.Rank, e.PlayerName, e.TableNumber, e.TotalTimeMs, e.ErrorCount, e.Date)).ToList(), "Overall Hall of Fame");
+                var entries = await _mediator.QueryAsync(new GetHallOfFameOverallQuery(modeFilter));
+                ToonTabel(entries.Select(e => (e.Rank, e.PlayerName, e.TableNumber, e.TotalTimeMs, e.ErrorCount, e.Date)).ToList(), $"Overall Hall of Fame{modusSuffix}");
             }
             else
             {
@@ -46,8 +70,8 @@ public class HallOfFameScherm : IScherm
                         .AddChoices(Enumerable.Range(1, 10).Select(i => $"Tafel {i}")));
 
                 var tafelNr = Thema.ParseTafelKeuze(tafelKeuze);
-                var entries = await _mediator.QueryAsync(new GetHallOfFameByTableQuery(tafelNr));
-                ToonTabel(entries.Select(e => (e.Rank, e.PlayerName, e.TableNumber, e.TotalTimeMs, e.ErrorCount, e.Date)).ToList(), $"Hall of Fame — Tafel {tafelNr}");
+                var entries = await _mediator.QueryAsync(new GetHallOfFameByTableQuery(tafelNr, modeFilter));
+                ToonTabel(entries.Select(e => (e.Rank, e.PlayerName, e.TableNumber, e.TotalTimeMs, e.ErrorCount, e.Date)).ToList(), $"Hall of Fame — Tafel {tafelNr}{modusSuffix}");
             }
 
             Thema.WachtOpEnter("Druk op Enter om door te gaan...");
