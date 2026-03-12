@@ -29,11 +29,12 @@ public class JsonHallOfFameRepository : JsonRepositoryBase<HallOfFameEntryJson>,
     }
 
     private static HallOfFameEntry MapToDomain(HallOfFameEntryJson j) =>
-        HallOfFameEntry.Reconstitute(j.Id, j.PlayerId, j.PlayerName, j.TableNumber, j.TotalTimeMs, j.ErrorCount, j.Date, Enum.Parse<GameMode>(j.Mode));
+        HallOfFameEntry.Reconstitute(j.Id, j.SessionId, j.PlayerId, j.PlayerName, j.TableNumber, j.TotalTimeMs, j.ErrorCount, j.Date, Enum.Parse<GameMode>(j.Mode));
 
     private static HallOfFameEntryJson MapToJson(HallOfFameEntry e) => new()
     {
         Id = e.Id,
+        SessionId = e.SessionId,
         PlayerId = e.PlayerId,
         PlayerName = e.PlayerName,
         TableNumber = e.TableNumber,

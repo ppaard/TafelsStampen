@@ -47,7 +47,7 @@ public class GetPrestatieSamenvattingQueryHandler : IQueryHandler<GetPrestatieSa
 
         bool isEersteGame = persoonlijkeEntries.Count == 0;
         long? vorigeBesteMs = isEersteGame ? null : persoonlijkeEntries[0].TotalTimeMs;
-        bool isNieuwRecord = !isEersteGame && currentSession.TotalTimeMs <= persoonlijkeEntries[0].TotalTimeMs;
+        bool isNieuwRecord = !isEersteGame && currentSession.TotalTimeMs < persoonlijkeEntries[0].TotalTimeMs;
 
         // Verbeterde sommen
         var historischeSessies = await _sessionRepository.GetByPlayerTableModeAsync(query.PlayerId, query.TableNumber, query.Mode);

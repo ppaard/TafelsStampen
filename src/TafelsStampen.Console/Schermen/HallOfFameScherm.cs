@@ -33,6 +33,7 @@ public class HallOfFameScherm : IScherm
     public GameMode? InitieleModusFilter { get; set; }
     public Guid? InitieleSpelerFilterId { get; set; }
     public string? InitieleSpelerFilterNaam { get; set; }
+    public Guid? HuidigeSessionId { get; set; }
 
     public HallOfFameScherm(IMediator mediator)
     {
@@ -45,6 +46,8 @@ public class HallOfFameScherm : IScherm
         GameMode? modusFilter = InitieleModusFilter;
         Guid? spelerFilterId = InitieleSpelerFilterId;
         string? spelerFilterNaam = InitieleSpelerFilterNaam;
+        Guid? huidigeSessionId = HuidigeSessionId;
+        HuidigeSessionId = null;
         HallOfFamePeriode periodeFilter = HallOfFamePeriode.DezeWeek;
         int pagina = 0;
 
@@ -58,9 +61,9 @@ public class HallOfFameScherm : IScherm
             // 1. Data ophalen
             var entries = tafelFilter == null
                 ? (await _mediator.QueryAsync(new GetHallOfFameOverallQuery(modusFilter, spelerFilterId, periodeFilter)))
-                    .Select(e => (e.Rank, e.PlayerName, e.TableNumber, e.TotalTimeMs, e.ErrorCount, e.Date)).ToList()
+                    .Select(e => (e.Rank, e.PlayerName, e.TableNumber, e.TotalTimeMs, e.ErrorCount, e.Date, e.SessionId)).ToList()
                 : (await _mediator.QueryAsync(new GetHallOfFameByTableQuery(tafelFilter.Value, modusFilter, spelerFilterId, periodeFilter)))
-                    .Select(e => (e.Rank, e.PlayerName, e.TableNumber, e.TotalTimeMs, e.ErrorCount, e.Date)).ToList();
+                    .Select(e => (e.Rank, e.PlayerName, e.TableNumber, e.TotalTimeMs, e.ErrorCount, e.Date, e.SessionId)).ToList();
 
             // 2. Paginering berekenen
             var aantalPaginas = (int)Math.Ceiling(entries.Count / (double)PaginaGrootte);
@@ -80,7 +83,7 @@ public class HallOfFameScherm : IScherm
                 _                           => ""
             };
             var paginaTitel = aantalPaginas > 1 ? $" — Pagina {pagina + 1} van {aantalPaginas}" : "";
-            ToonTabel(paginaEntries, $"{titelTafel}{titelModus}{titelSpeler}{titelPeriode}{paginaTitel}");
+            ToonTabel(paginaEntries, $"{titelTafel}{titelModus}{titelSpeler}{titelPeriode}{paginaTitel}", huidigeSessionId);
 
             // 4. Filter-menu
             var periodeLabel = periodeFilter switch
@@ -180,7 +183,7 @@ public class HallOfFameScherm : IScherm
         }
     }
 
-    private static void ToonTabel(List<(int Rank, string Naam, int Tafel, long TijdMs, int Fouten, DateTime Datum)> entries, string titel)
+    private static void ToonTabel(List<(int Rank, string Naam, int Tafel, long TijdMs, int Fouten, DateTime Datum, Guid Id)> entries, string titel, Guid? huidigeId = null)
     {
         AnsiConsole.WriteLine();
         AnsiConsole.MarkupLine($"[gold1 bold]{Markup.Escape(titel)}[/]\n");
@@ -204,13 +207,15 @@ public class HallOfFameScherm : IScherm
         foreach (var e in entries)
         {
             var medal = e.Rank switch { 1 => "🥇", 2 => "🥈", 3 => "🥉", _ => e.Rank.ToString() };
+            bool isHuidig = huidigeId.HasValue && e.Id == huidigeId.Value;
+            Func<string, string> stijl = isHuidig ? s => $"[bold yellow]{s}[/]" : s => s;
             table.AddRow(
-                medal,
-                Markup.Escape(e.Naam),
-                e.Tafel.ToString(),
-                $"{e.TijdMs / 1000.0:F1}s",
-                e.Fouten.ToString(),
-                e.Datum.ToLocalTime().ToString("dd-MM-yyyy"));
+                stijl(medal),
+                stijl(Markup.Escape(e.Naam)),
+                stijl(e.Tafel.ToString()),
+                stijl($"{e.TijdMs / 1000.0:F1}s"),
+                stijl(e.Fouten.ToString()),
+                stijl(e.Datum.ToLocalTime().ToString("dd-MM-yyyy")));
         }
 
         AnsiConsole.Write(table);

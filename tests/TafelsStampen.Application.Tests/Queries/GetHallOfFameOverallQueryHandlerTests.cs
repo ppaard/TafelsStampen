@@ -15,9 +15,9 @@ public class GetHallOfFameOverallQueryHandlerTests
     {
         var entries = new List<HallOfFameEntry>
         {
-            new(Guid.NewGuid(), "Kees", 5, 8000, 0),
-            new(Guid.NewGuid(), "Jan",  3, 5000, 0),
-            new(Guid.NewGuid(), "Lisa", 7, 6000, 1),
+            new(Guid.NewGuid(), Guid.NewGuid(), "Kees", 5, 8000, 0),
+            new(Guid.NewGuid(), Guid.NewGuid(), "Jan",  3, 5000, 0),
+            new(Guid.NewGuid(), Guid.NewGuid(), "Lisa", 7, 6000, 1),
         };
         var repo = new Mock<IHallOfFameRepository>();
         repo.Setup(r => r.GetAllAsync()).ReturnsAsync(entries);
@@ -51,8 +51,8 @@ public class GetHallOfFameOverallQueryHandlerTests
     {
         var entries = new List<HallOfFameEntry>
         {
-            new(Guid.NewGuid(), "Jan",  3, 5000, 0, GameMode.Volgorde),
-            new(Guid.NewGuid(), "Lisa", 7, 6000, 0, GameMode.Willekeurig),
+            new(Guid.NewGuid(), Guid.NewGuid(), "Jan",  3, 5000, 0, GameMode.Volgorde),
+            new(Guid.NewGuid(), Guid.NewGuid(), "Lisa", 7, 6000, 0, GameMode.Willekeurig),
         };
         var repo = new Mock<IHallOfFameRepository>();
         repo.Setup(r => r.GetAllAsync()).ReturnsAsync(entries);
@@ -70,8 +70,8 @@ public class GetHallOfFameOverallQueryHandlerTests
         var janId = Guid.NewGuid();
         var entries = new List<HallOfFameEntry>
         {
-            new(janId,          "Jan",  3, 5000, 0),
-            new(Guid.NewGuid(), "Lisa", 7, 6000, 0),
+            new(Guid.NewGuid(), janId,          "Jan",  3, 5000, 0),
+            new(Guid.NewGuid(), Guid.NewGuid(), "Lisa", 7, 6000, 0),
         };
         var repo = new Mock<IHallOfFameRepository>();
         repo.Setup(r => r.GetAllAsync()).ReturnsAsync(entries);
@@ -89,8 +89,8 @@ public class GetHallOfFameOverallQueryHandlerTests
         var today = DateTime.UtcNow;
         var entries = new List<HallOfFameEntry>
         {
-            HallOfFameEntry.Reconstitute(Guid.NewGuid(), Guid.NewGuid(), "Jan",  3, 5000, 0, today),
-            HallOfFameEntry.Reconstitute(Guid.NewGuid(), Guid.NewGuid(), "Lisa", 7, 6000, 0, today.AddDays(-1)),
+            HallOfFameEntry.Reconstitute(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "Jan",  3, 5000, 0, today),
+            HallOfFameEntry.Reconstitute(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "Lisa", 7, 6000, 0, today.AddDays(-1)),
         };
         var repo = new Mock<IHallOfFameRepository>();
         repo.Setup(r => r.GetAllAsync()).ReturnsAsync(entries);
@@ -109,8 +109,8 @@ public class GetHallOfFameOverallQueryHandlerTests
         var maandag = today.AddDays(-(((int)today.DayOfWeek - (int)DayOfWeek.Monday + 7) % 7));
         var entries = new List<HallOfFameEntry>
         {
-            HallOfFameEntry.Reconstitute(Guid.NewGuid(), Guid.NewGuid(), "Jan",  3, 5000, 0, maandag),
-            HallOfFameEntry.Reconstitute(Guid.NewGuid(), Guid.NewGuid(), "Lisa", 7, 6000, 0, maandag.AddDays(-1)),
+            HallOfFameEntry.Reconstitute(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "Jan",  3, 5000, 0, maandag),
+            HallOfFameEntry.Reconstitute(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "Lisa", 7, 6000, 0, maandag.AddDays(-1)),
         };
         var repo = new Mock<IHallOfFameRepository>();
         repo.Setup(r => r.GetAllAsync()).ReturnsAsync(entries);
@@ -127,8 +127,8 @@ public class GetHallOfFameOverallQueryHandlerTests
     {
         var entries = new List<HallOfFameEntry>
         {
-            HallOfFameEntry.Reconstitute(Guid.NewGuid(), Guid.NewGuid(), "Jan",  3, 5000, 0, DateTime.UtcNow.AddYears(-2)),
-            HallOfFameEntry.Reconstitute(Guid.NewGuid(), Guid.NewGuid(), "Lisa", 7, 6000, 0, DateTime.UtcNow),
+            HallOfFameEntry.Reconstitute(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "Jan",  3, 5000, 0, DateTime.UtcNow.AddYears(-2)),
+            HallOfFameEntry.Reconstitute(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "Lisa", 7, 6000, 0, DateTime.UtcNow),
         };
         var repo = new Mock<IHallOfFameRepository>();
         repo.Setup(r => r.GetAllAsync()).ReturnsAsync(entries);

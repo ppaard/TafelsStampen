@@ -38,6 +38,7 @@ public class FinishGameCommandHandler : ICommandHandler<FinishGameCommand, Unit>
         await _sessionRepository.SaveAsync(session);
 
         var entry = new HallOfFameEntry(
+            session.Id,
             session.PlayerId,
             player.Name.Value,
             session.TableNumber.Value,
