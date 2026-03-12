@@ -29,6 +29,11 @@ public class HallOfFameScherm : IScherm
     private const string PeriodeDezeMaand = "🗓️  Deze maand";
     private const string PeriodeDitJaar   = "🗓️  Dit jaar";
 
+    public int? InitieleTafelFilter { get; set; }
+    public GameMode? InitieleModusFilter { get; set; }
+    public Guid? InitieleSpelerFilterId { get; set; }
+    public string? InitieleSpelerFilterNaam { get; set; }
+
     public HallOfFameScherm(IMediator mediator)
     {
         _mediator = mediator;
@@ -36,10 +41,10 @@ public class HallOfFameScherm : IScherm
 
     public async Task ToonAsync()
     {
-        int? tafelFilter = null;
-        GameMode? modusFilter = null;
-        Guid? spelerFilterId = null;
-        string? spelerFilterNaam = null;
+        int? tafelFilter = InitieleTafelFilter;
+        GameMode? modusFilter = InitieleModusFilter;
+        Guid? spelerFilterId = InitieleSpelerFilterId;
+        string? spelerFilterNaam = InitieleSpelerFilterNaam;
         HallOfFamePeriode periodeFilter = HallOfFamePeriode.DezeWeek;
         int pagina = 0;
 

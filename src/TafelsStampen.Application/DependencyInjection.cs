@@ -10,6 +10,7 @@ using TafelsStampen.Application.Queries.GetGameResult;
 using TafelsStampen.Application.Queries.GetHallOfFameByTable;
 using TafelsStampen.Application.Queries.GetHallOfFameOverall;
 using TafelsStampen.Application.Queries.GetPlayers;
+using TafelsStampen.Application.Queries.GetPrestatieSamenvatting;
 
 public static class DependencyInjection
 {
@@ -28,6 +29,7 @@ public static class DependencyInjection
         services.AddScoped<IQueryHandler<GetHallOfFameByTableQuery, IReadOnlyList<HallOfFameEntryDto>>, GetHallOfFameByTableQueryHandler>();
         services.AddScoped<IQueryHandler<GetHallOfFameOverallQuery, IReadOnlyList<HallOfFameEntryDto>>, GetHallOfFameOverallQueryHandler>();
         services.AddScoped<IQueryHandler<GetGameResultQuery, GameResultDto>, GetGameResultQueryHandler>();
+        services.AddScoped<IQueryHandler<GetPrestatieSamenvattingQuery, PrestatieSamenvattingDto>, GetPrestatieSamenvattingQueryHandler>();
 
         return services;
     }

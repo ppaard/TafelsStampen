@@ -4,16 +4,21 @@ using TafelsStampen.Application.Mediator;
 using TafelsStampen.Application.Queries.GetGameResult;
 using TafelsStampen.Console.Navigatie;
 using TafelsStampen.Console.Stijl;
+using TafelsStampen.Domain.ValueObjects;
 
 public class ResultatenScherm : IScherm
 {
     private readonly IMediator _mediator;
+    private readonly NavigatieService _navigatie;
+    private readonly PrestatieschermScherm _prestatiescherm;
 
     public Guid SessionId { get; set; }
 
-    public ResultatenScherm(IMediator mediator)
+    public ResultatenScherm(IMediator mediator, NavigatieService navigatie, PrestatieschermScherm prestatiescherm)
     {
         _mediator = mediator;
+        _navigatie = navigatie;
+        _prestatiescherm = prestatiescherm;
     }
 
     public async Task ToonAsync()
@@ -54,6 +59,11 @@ public class ResultatenScherm : IScherm
             _ => "\n[red]Blijf oefenen! Je kunt het![/]"
         });
 
-        Thema.WachtOpEnter();
+        _prestatiescherm.SessionId = resultaat.SessionId;
+        _prestatiescherm.PlayerId = resultaat.PlayerId;
+        _prestatiescherm.SpelerNaam = resultaat.PlayerName;
+        _prestatiescherm.TafelNummer = resultaat.TableNumber;
+        _prestatiescherm.Modus = Enum.Parse<GameMode>(resultaat.Mode);
+        await _navigatie.NaarAsync(_prestatiescherm);
     }
 }
