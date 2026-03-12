@@ -1,4 +1,5 @@
 namespace TafelsStampen.Application.Tests.Queries;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Shouldly;
 using TafelsStampen.Application.Queries.GetHallOfFameByTable;
@@ -18,7 +19,7 @@ public class GetHallOfFameByTableQueryHandlerTests
         var repo = new Mock<IHallOfFameRepository>();
         repo.Setup(r => r.GetByTableAsync(3)).ReturnsAsync(entries);
 
-        var handler = new GetHallOfFameByTableQueryHandler(repo.Object);
+        var handler = new GetHallOfFameByTableQueryHandler(repo.Object, NullLogger<GetHallOfFameByTableQueryHandler>.Instance);
         var result = await handler.HandleAsync(new GetHallOfFameByTableQuery(3));
 
         result.Count.ShouldBe(2);

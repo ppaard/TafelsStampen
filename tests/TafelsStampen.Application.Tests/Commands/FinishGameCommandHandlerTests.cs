@@ -1,4 +1,5 @@
 namespace TafelsStampen.Application.Tests.Commands;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Shouldly;
 using TafelsStampen.Application.Commands.FinishGame;
@@ -36,7 +37,7 @@ public class FinishGameCommandHandlerTests
             .Callback<HallOfFameEntry>(e => savedEntry = e)
             .Returns(Task.CompletedTask);
 
-        var handler = new FinishGameCommandHandler(sessionRepo.Object, playerRepo.Object, hofRepo.Object);
+        var handler = new FinishGameCommandHandler(sessionRepo.Object, playerRepo.Object, hofRepo.Object, NullLogger<FinishGameCommandHandler>.Instance);
         await handler.HandleAsync(new FinishGameCommand(session.Id));
 
         session.IsFinished.ShouldBeTrue();
@@ -56,7 +57,8 @@ public class FinishGameCommandHandlerTests
         var handler = new FinishGameCommandHandler(
             sessionRepo.Object,
             new Mock<IPlayerRepository>().Object,
-            new Mock<IHallOfFameRepository>().Object);
+            new Mock<IHallOfFameRepository>().Object,
+            NullLogger<FinishGameCommandHandler>.Instance);
 
         await Should.ThrowAsync<DomainException>(() =>
             handler.HandleAsync(new FinishGameCommand(Guid.NewGuid())));

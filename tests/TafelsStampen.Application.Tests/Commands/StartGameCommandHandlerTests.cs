@@ -1,4 +1,5 @@
 namespace TafelsStampen.Application.Tests.Commands;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Shouldly;
 using TafelsStampen.Application.Commands.StartGame;
@@ -17,7 +18,7 @@ public class StartGameCommandHandlerTests
             .Callback<GameSession>(s => saved = s)
             .Returns(Task.CompletedTask);
 
-        var handler = new StartGameCommandHandler(repo.Object);
+        var handler = new StartGameCommandHandler(repo.Object, NullLogger<StartGameCommandHandler>.Instance);
         var playerId = Guid.NewGuid();
         var id = await handler.HandleAsync(new StartGameCommand(playerId, 3, GameMode.Volgorde));
 

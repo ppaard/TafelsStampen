@@ -1,4 +1,5 @@
 namespace TafelsStampen.Application.Tests.Commands;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Shouldly;
 using TafelsStampen.Application.Commands.RegisterPlayer;
@@ -16,7 +17,7 @@ public class RegisterPlayerCommandHandlerTests
             .Callback<Player>(p => saved = p)
             .Returns(Task.CompletedTask);
 
-        var handler = new RegisterPlayerCommandHandler(repo.Object);
+        var handler = new RegisterPlayerCommandHandler(repo.Object, NullLogger<RegisterPlayerCommandHandler>.Instance);
         var id = await handler.HandleAsync(new RegisterPlayerCommand("Piet"));
 
         saved.ShouldNotBeNull();

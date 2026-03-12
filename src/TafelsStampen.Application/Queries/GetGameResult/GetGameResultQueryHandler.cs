@@ -1,4 +1,5 @@
 namespace TafelsStampen.Application.Queries.GetGameResult;
+using Microsoft.Extensions.Logging;
 using TafelsStampen.Application.DTOs;
 using TafelsStampen.Application.Mediator;
 using TafelsStampen.Domain.Exceptions;
@@ -8,15 +9,19 @@ public class GetGameResultQueryHandler : IQueryHandler<GetGameResultQuery, GameR
 {
     private readonly IGameSessionRepository _sessionRepository;
     private readonly IPlayerRepository _playerRepository;
+    private readonly ILogger<GetGameResultQueryHandler> _logger;
 
-    public GetGameResultQueryHandler(IGameSessionRepository sessionRepository, IPlayerRepository playerRepository)
+    public GetGameResultQueryHandler(IGameSessionRepository sessionRepository, IPlayerRepository playerRepository, ILogger<GetGameResultQueryHandler> logger)
     {
         _sessionRepository = sessionRepository;
         _playerRepository = playerRepository;
+        _logger = logger;
     }
 
     public async Task<GameResultDto> HandleAsync(GetGameResultQuery query)
     {
+        _logger.LogDebug("Spelresultaat ophalen voor sessie {SessionId}", query.SessionId);
+
         var session = await _sessionRepository.GetByIdAsync(query.SessionId)
             ?? throw new DomainException($"Sessie {query.SessionId} niet gevonden.");
 

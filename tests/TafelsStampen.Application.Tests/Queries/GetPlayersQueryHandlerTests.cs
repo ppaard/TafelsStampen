@@ -1,4 +1,5 @@
 namespace TafelsStampen.Application.Tests.Queries;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Shouldly;
 using TafelsStampen.Application.Queries.GetPlayers;
@@ -14,7 +15,7 @@ public class GetPlayersQueryHandlerTests
         var repo = new Mock<IPlayerRepository>();
         repo.Setup(r => r.GetAllAsync()).ReturnsAsync(players);
 
-        var handler = new GetPlayersQueryHandler(repo.Object);
+        var handler = new GetPlayersQueryHandler(repo.Object, NullLogger<GetPlayersQueryHandler>.Instance);
         var result = await handler.HandleAsync(new GetPlayersQuery());
 
         result.Count.ShouldBe(2);
