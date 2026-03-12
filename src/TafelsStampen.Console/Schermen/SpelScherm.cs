@@ -64,12 +64,11 @@ public class SpelScherm : IScherm
             var isCorrect = await _mediator.SendAsync(
                 new SubmitAnswerCommand(sessionId, TafelNummer, b, antwoord, ms));
 
-            if (isCorrect)
-                AnsiConsole.MarkupLine($"\n[green]✓ Correct! ({ms} ms)[/]");
-            else
-                AnsiConsole.MarkupLine($"\n[red]✗ Fout! Het goede antwoord is {TafelNummer * b}. ({ms} ms)[/]");
-
-            await Task.Delay(1200);
+            if (!isCorrect)
+            {
+                AnsiConsole.MarkupLine($"\n[red]✗ Het antwoord is {TafelNummer * b}[/]");
+                await Task.Delay(800);
+            }
         }
 
         await _mediator.SendAsync(new FinishGameCommand(sessionId));
