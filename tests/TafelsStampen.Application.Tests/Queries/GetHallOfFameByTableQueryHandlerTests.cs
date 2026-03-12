@@ -2,6 +2,7 @@ namespace TafelsStampen.Application.Tests.Queries;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Shouldly;
+using TafelsStampen.Application.Queries;
 using TafelsStampen.Application.Queries.GetHallOfFameByTable;
 using TafelsStampen.Domain.Entities;
 using TafelsStampen.Domain.Repositories;
@@ -65,5 +66,61 @@ public class GetHallOfFameByTableQueryHandlerTests
 
         result.Count.ShouldBe(1);
         result[0].PlayerName.ShouldBe("Jan");
+    }
+
+    [Fact]
+    public async Task PeriodeFilter_Vandaag_ReturnOnlyTodaysEntries()
+    {
+        var today = DateTime.UtcNow;
+        var entries = new List<HallOfFameEntry>
+        {
+            HallOfFameEntry.Reconstitute(Guid.NewGuid(), Guid.NewGuid(), "Jan",  3, 5000, 0, today),
+            HallOfFameEntry.Reconstitute(Guid.NewGuid(), Guid.NewGuid(), "Lisa", 3, 6000, 0, today.AddDays(-1)),
+        };
+        var repo = new Mock<IHallOfFameRepository>();
+        repo.Setup(r => r.GetByTableAsync(3)).ReturnsAsync(entries);
+
+        var handler = new GetHallOfFameByTableQueryHandler(repo.Object, NullLogger<GetHallOfFameByTableQueryHandler>.Instance);
+        var result = await handler.HandleAsync(new GetHallOfFameByTableQuery(3, PeriodeFilter: HallOfFamePeriode.Vandaag));
+
+        result.Count.ShouldBe(1);
+        result[0].PlayerName.ShouldBe("Jan");
+    }
+
+    [Fact]
+    public async Task PeriodeFilter_DezeWeek_ReturnOnlyThisWeeksEntries()
+    {
+        var today = DateTime.UtcNow.Date;
+        var maandag = today.AddDays(-(((int)today.DayOfWeek - (int)DayOfWeek.Monday + 7) % 7));
+        var entries = new List<HallOfFameEntry>
+        {
+            HallOfFameEntry.Reconstitute(Guid.NewGuid(), Guid.NewGuid(), "Jan",  3, 5000, 0, maandag),
+            HallOfFameEntry.Reconstitute(Guid.NewGuid(), Guid.NewGuid(), "Lisa", 3, 6000, 0, maandag.AddDays(-1)),
+        };
+        var repo = new Mock<IHallOfFameRepository>();
+        repo.Setup(r => r.GetByTableAsync(3)).ReturnsAsync(entries);
+
+        var handler = new GetHallOfFameByTableQueryHandler(repo.Object, NullLogger<GetHallOfFameByTableQueryHandler>.Instance);
+        var result = await handler.HandleAsync(new GetHallOfFameByTableQuery(3, PeriodeFilter: HallOfFamePeriode.DezeWeek));
+
+        result.Count.ShouldBe(1);
+        result[0].PlayerName.ShouldBe("Jan");
+    }
+
+    [Fact]
+    public async Task PeriodeFilter_Alles_ReturnAllEntries()
+    {
+        var entries = new List<HallOfFameEntry>
+        {
+            HallOfFameEntry.Reconstitute(Guid.NewGuid(), Guid.NewGuid(), "Jan",  3, 5000, 0, DateTime.UtcNow.AddYears(-2)),
+            HallOfFameEntry.Reconstitute(Guid.NewGuid(), Guid.NewGuid(), "Lisa", 3, 6000, 0, DateTime.UtcNow),
+        };
+        var repo = new Mock<IHallOfFameRepository>();
+        repo.Setup(r => r.GetByTableAsync(3)).ReturnsAsync(entries);
+
+        var handler = new GetHallOfFameByTableQueryHandler(repo.Object, NullLogger<GetHallOfFameByTableQueryHandler>.Instance);
+        var result = await handler.HandleAsync(new GetHallOfFameByTableQuery(3, PeriodeFilter: HallOfFamePeriode.Alles));
+
+        result.Count.ShouldBe(2);
     }
 }
