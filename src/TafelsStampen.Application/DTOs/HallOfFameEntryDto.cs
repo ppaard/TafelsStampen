@@ -1,4 +1,5 @@
 namespace TafelsStampen.Application.DTOs;
+using TafelsStampen.Domain.ValueObjects;
 
 public record HallOfFameEntryDto(
     int Rank,
@@ -6,4 +7,5 @@ public record HallOfFameEntryDto(
     int TableNumber,
     long TotalTimeMs,
     int ErrorCount,
-    DateTime Date);
+    DateTime Date,
+    GameMode Mode);

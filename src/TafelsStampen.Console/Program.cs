@@ -37,8 +37,7 @@ try
             services.AddSingleton<NavigatieService>();
             services.AddTransient<ResultatenScherm>();
             services.AddTransient<SpelScherm>();
-            services.AddTransient<ModusKeuzeScherm>();
-            services.AddTransient<TafelKeuzeScherm>();
+services.AddTransient<TafelKeuzeScherm>();
             services.AddTransient<SpelerSelectieScherm>();
             services.AddTransient<HallOfFameScherm>();
             services.AddTransient<InstellingenScherm>();
