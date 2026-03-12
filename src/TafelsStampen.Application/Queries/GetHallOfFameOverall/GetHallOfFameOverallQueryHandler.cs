@@ -1,4 +1,5 @@
 namespace TafelsStampen.Application.Queries.GetHallOfFameOverall;
+using Microsoft.Extensions.Logging;
 using TafelsStampen.Application.DTOs;
 using TafelsStampen.Application.Mediator;
 using TafelsStampen.Domain.Repositories;
@@ -6,14 +7,17 @@ using TafelsStampen.Domain.Repositories;
 public class GetHallOfFameOverallQueryHandler : IQueryHandler<GetHallOfFameOverallQuery, IReadOnlyList<HallOfFameEntryDto>>
 {
     private readonly IHallOfFameRepository _hallOfFameRepository;
+    private readonly ILogger<GetHallOfFameOverallQueryHandler> _logger;
 
-    public GetHallOfFameOverallQueryHandler(IHallOfFameRepository hallOfFameRepository)
+    public GetHallOfFameOverallQueryHandler(IHallOfFameRepository hallOfFameRepository, ILogger<GetHallOfFameOverallQueryHandler> logger)
     {
         _hallOfFameRepository = hallOfFameRepository;
+        _logger = logger;
     }
 
     public async Task<IReadOnlyList<HallOfFameEntryDto>> HandleAsync(GetHallOfFameOverallQuery query)
     {
+        _logger.LogDebug("Algehele Hall of Fame ophalen");
         var entries = await _hallOfFameRepository.GetAllAsync();
         return entries
             .OrderBy(e => e.TotalTimeMs)

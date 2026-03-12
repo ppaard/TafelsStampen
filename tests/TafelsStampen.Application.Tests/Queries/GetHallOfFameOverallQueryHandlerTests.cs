@@ -1,4 +1,5 @@
 namespace TafelsStampen.Application.Tests.Queries;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Shouldly;
 using TafelsStampen.Application.Queries.GetHallOfFameOverall;
@@ -19,7 +20,7 @@ public class GetHallOfFameOverallQueryHandlerTests
         var repo = new Mock<IHallOfFameRepository>();
         repo.Setup(r => r.GetAllAsync()).ReturnsAsync(entries);
 
-        var handler = new GetHallOfFameOverallQueryHandler(repo.Object);
+        var handler = new GetHallOfFameOverallQueryHandler(repo.Object, NullLogger<GetHallOfFameOverallQueryHandler>.Instance);
         var result = await handler.HandleAsync(new GetHallOfFameOverallQuery());
 
         result.Count.ShouldBe(3);
@@ -37,7 +38,7 @@ public class GetHallOfFameOverallQueryHandlerTests
         var repo = new Mock<IHallOfFameRepository>();
         repo.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<HallOfFameEntry>());
 
-        var handler = new GetHallOfFameOverallQueryHandler(repo.Object);
+        var handler = new GetHallOfFameOverallQueryHandler(repo.Object, NullLogger<GetHallOfFameOverallQueryHandler>.Instance);
         var result = await handler.HandleAsync(new GetHallOfFameOverallQuery());
 
         result.ShouldBeEmpty();

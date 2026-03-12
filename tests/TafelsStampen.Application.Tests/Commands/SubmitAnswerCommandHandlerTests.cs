@@ -1,4 +1,5 @@
 namespace TafelsStampen.Application.Tests.Commands;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Shouldly;
 using TafelsStampen.Application.Commands.SubmitAnswer;
@@ -16,7 +17,7 @@ public class SubmitAnswerCommandHandlerTests
         repo.Setup(r => r.GetByIdAsync(session.Id)).ReturnsAsync(session);
         repo.Setup(r => r.SaveAsync(It.IsAny<GameSession>())).Returns(Task.CompletedTask);
 
-        var handler = new SubmitAnswerCommandHandler(repo.Object);
+        var handler = new SubmitAnswerCommandHandler(repo.Object, NullLogger<SubmitAnswerCommandHandler>.Instance);
         var result = await handler.HandleAsync(new SubmitAnswerCommand(session.Id, 3, 4, 12, 1500));
 
         result.ShouldBeTrue();
@@ -31,7 +32,7 @@ public class SubmitAnswerCommandHandlerTests
         repo.Setup(r => r.GetByIdAsync(session.Id)).ReturnsAsync(session);
         repo.Setup(r => r.SaveAsync(It.IsAny<GameSession>())).Returns(Task.CompletedTask);
 
-        var handler = new SubmitAnswerCommandHandler(repo.Object);
+        var handler = new SubmitAnswerCommandHandler(repo.Object, NullLogger<SubmitAnswerCommandHandler>.Instance);
         var result = await handler.HandleAsync(new SubmitAnswerCommand(session.Id, 3, 4, 10, 1500));
 
         result.ShouldBeFalse();

@@ -1,4 +1,5 @@
 namespace TafelsStampen.Application.Tests.Queries;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Shouldly;
 using TafelsStampen.Application.Queries.GetGameResult;
@@ -23,7 +24,7 @@ public class GetGameResultQueryHandlerTests
         var playerRepo = new Mock<IPlayerRepository>();
         playerRepo.Setup(r => r.GetByIdAsync(player.Id)).ReturnsAsync(player);
 
-        var handler = new GetGameResultQueryHandler(sessionRepo.Object, playerRepo.Object);
+        var handler = new GetGameResultQueryHandler(sessionRepo.Object, playerRepo.Object, NullLogger<GetGameResultQueryHandler>.Instance);
         var result = await handler.HandleAsync(new GetGameResultQuery(session.Id));
 
         result.PlayerName.ShouldBe("Jan");
@@ -43,7 +44,7 @@ public class GetGameResultQueryHandlerTests
         var sessionRepo = new Mock<IGameSessionRepository>();
         sessionRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((GameSession?)null);
 
-        var handler = new GetGameResultQueryHandler(sessionRepo.Object, new Mock<IPlayerRepository>().Object);
+        var handler = new GetGameResultQueryHandler(sessionRepo.Object, new Mock<IPlayerRepository>().Object, NullLogger<GetGameResultQueryHandler>.Instance);
 
         await Should.ThrowAsync<DomainException>(() =>
             handler.HandleAsync(new GetGameResultQuery(Guid.NewGuid())));
