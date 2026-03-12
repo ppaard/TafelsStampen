@@ -67,7 +67,7 @@ public class SpelScherm : IScherm
             if (!isCorrect)
             {
                 AnsiConsole.MarkupLine($"\n[red]✗ Het antwoord is {TafelNummer * b}[/]");
-                await Task.Delay(800);
+                await Task.Delay(1200);
             }
         }
 
