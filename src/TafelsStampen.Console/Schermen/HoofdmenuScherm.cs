@@ -2,6 +2,7 @@ namespace TafelsStampen.Console.Schermen;
 using Spectre.Console;
 using TafelsStampen.Console.Navigatie;
 using TafelsStampen.Console.Stijl;
+using TafelsStampen.Domain.ValueObjects;
 
 public class HoofdmenuScherm : IScherm
 {
@@ -9,6 +10,12 @@ public class HoofdmenuScherm : IScherm
     private readonly SpelerSelectieScherm _spelerSelectie;
     private readonly HallOfFameScherm _hallOfFame;
     private readonly InstellingenScherm _instellingen;
+
+    private const string OefenesOptie    = "✏️  Oefenen";
+    private const string SpelenOptie     = "🎮  Spelen";
+    private const string HallOfFameOptie = "🏆  Hall of Fame";
+    private const string InstellingenOptie = "⚙️   Instellingen";
+    private const string AfsluitenOptie  = "🚪  Afsluiten";
 
     public HoofdmenuScherm(
         NavigatieService navigatie,
@@ -31,25 +38,31 @@ public class HoofdmenuScherm : IScherm
             var keuze = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
                     .Title("[gold1]Wat wil je doen?[/]")
-                    .PageSize(5)
+                    .PageSize(6)
                     .AddChoices(
-                        "🎮  Nieuw spel",
-                        "🏆  Hall of Fame",
-                        "⚙️   Instellingen",
-                        "🚪  Afsluiten"));
+                        OefenesOptie,
+                        SpelenOptie,
+                        HallOfFameOptie,
+                        InstellingenOptie,
+                        AfsluitenOptie));
 
             switch (keuze)
             {
-                case "🎮  Nieuw spel":
+                case OefenesOptie:
+                    _spelerSelectie.Modus = GameMode.Volgorde;
                     await _navigatie.NaarAsync(_spelerSelectie);
                     break;
-                case "🏆  Hall of Fame":
+                case SpelenOptie:
+                    _spelerSelectie.Modus = GameMode.Willekeurig;
+                    await _navigatie.NaarAsync(_spelerSelectie);
+                    break;
+                case HallOfFameOptie:
                     await _navigatie.NaarAsync(_hallOfFame);
                     break;
-                case "⚙️   Instellingen":
+                case InstellingenOptie:
                     await _navigatie.NaarAsync(_instellingen);
                     break;
-                case "🚪  Afsluiten":
+                case AfsluitenOptie:
                     AnsiConsole.MarkupLine("\n[grey]Tot ziens![/]");
                     return;
             }

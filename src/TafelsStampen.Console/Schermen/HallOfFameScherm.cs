@@ -15,9 +15,9 @@ public class HallOfFameScherm : IScherm
     private const string PerTafelOptie = "📊  Per tafel";
     private const string TerugOptie = "⬅️   Terug";
 
-    private const string AlleModiOptie = "🔀  Alle modi";
-    private const string AlleenVolgorde = "➡️   Alleen volgorde";
-    private const string AlleenWillekeurig = "🎲  Alleen willekeurig";
+    private const string AlleModiOptie = "🔀  Alle";
+    private const string AlleenVolgorde = "✏️  Oefenen";
+    private const string AlleenWillekeurig = "🎮  Spelen";
 
     public HallOfFameScherm(IMediator mediator)
     {
@@ -52,8 +52,8 @@ public class HallOfFameScherm : IScherm
 
             string modusSuffix = modusKeuze switch
             {
-                AlleenVolgorde    => " — Volgorde",
-                AlleenWillekeurig => " — Willekeurig",
+                AlleenVolgorde    => " — Oefenen",
+                AlleenWillekeurig => " — Spelen",
                 _                 => ""
             };
 

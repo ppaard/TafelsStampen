@@ -5,6 +5,7 @@ using TafelsStampen.Application.Mediator;
 using TafelsStampen.Application.Queries.GetPlayers;
 using TafelsStampen.Console.Navigatie;
 using TafelsStampen.Console.Stijl;
+using TafelsStampen.Domain.ValueObjects;
 
 public class SpelerSelectieScherm : IScherm
 {
@@ -12,6 +13,8 @@ public class SpelerSelectieScherm : IScherm
     private readonly TafelKeuzeScherm _tafelKeuze;
 
     private const string NieuweSpelerOptie = "➕  Nieuwe speler";
+
+    public GameMode Modus { get; set; }
 
     public SpelerSelectieScherm(IMediator mediator, TafelKeuzeScherm tafelKeuze)
     {
@@ -62,6 +65,7 @@ public class SpelerSelectieScherm : IScherm
         await Task.Delay(800);
 
         _tafelKeuze.SpelerId = spelerId;
+        _tafelKeuze.Modus = Modus;
         await _tafelKeuze.ToonAsync();
     }
 
