@@ -33,8 +33,8 @@ public class ScoreCalculatorTests
     [Fact]
     public void CalculateRank_FastestIsFirst()
     {
-        var e1 = new HallOfFameEntry(Guid.NewGuid(), "Jan",  3, 30000, 0);
-        var e2 = new HallOfFameEntry(Guid.NewGuid(), "Kees", 3, 50000, 0);
+        var e1 = new HallOfFameEntry(Guid.NewGuid(), Guid.NewGuid(), "Jan",  3, 30000, 0);
+        var e2 = new HallOfFameEntry(Guid.NewGuid(), Guid.NewGuid(), "Kees", 3, 50000, 0);
         var all = new[] { e1, e2 };
 
         ScoreCalculator.CalculateRank(e1, all).ShouldBe(1);
@@ -44,8 +44,8 @@ public class ScoreCalculatorTests
     [Fact]
     public void CalculateRank_TiesBrokenByFewerErrors()
     {
-        var e1 = new HallOfFameEntry(Guid.NewGuid(), "Jan",  3, 30000, 1);
-        var e2 = new HallOfFameEntry(Guid.NewGuid(), "Kees", 3, 30000, 0);
+        var e1 = new HallOfFameEntry(Guid.NewGuid(), Guid.NewGuid(), "Jan",  3, 30000, 1);
+        var e2 = new HallOfFameEntry(Guid.NewGuid(), Guid.NewGuid(), "Kees", 3, 30000, 0);
         var all = new[] { e1, e2 };
 
         ScoreCalculator.CalculateRank(e2, all).ShouldBe(1);
@@ -55,7 +55,7 @@ public class ScoreCalculatorTests
     [Fact]
     public void CalculateRank_SingleEntry_IsRankOne()
     {
-        var entry = new HallOfFameEntry(Guid.NewGuid(), "Jan", 3, 30000, 0);
+        var entry = new HallOfFameEntry(Guid.NewGuid(), Guid.NewGuid(), "Jan", 3, 30000, 0);
 
         ScoreCalculator.CalculateRank(entry, new[] { entry }).ShouldBe(1);
     }

@@ -40,25 +40,27 @@ public class PrestatieschermScherm : IScherm
         if (samenvatting.IsEersteGame)
         {
             AnsiConsole.MarkupLine($"[yellow bold]⭐ Eerste score gezet voor Tafel {TafelNummer}![/]");
+            var huidig = samenvatting.HuidigeTijdMs / 1000.0;
+            AnsiConsole.MarkupLine($"[white]⏱️  Jouw tijd:  {huidig:F1}s[/]");
         }
         else if (samenvatting.IsNieuwPersoonlijkRecord)
         {
             var vorige = samenvatting.VorigeBesteMs!.Value / 1000.0;
             var huidig = samenvatting.HuidigeTijdMs / 1000.0;
-            AnsiConsole.MarkupLine($"[green bold]🏆 NIEUW PERSOONLIJK RECORD! {huidig:F1}s  (was {vorige:F1}s)[/]");
+            var gewonnen = vorige - huidig;
+            AnsiConsole.MarkupLine("[green bold]🏆 NIEUW PERSOONLIJK RECORD![/]");
+            AnsiConsole.MarkupLine($"[white]⏱️  Jouw tijd:       {huidig:F1}s[/]");
+            AnsiConsole.MarkupLine($"[white]📋 Vorig record:    {vorige:F1}s[/]");
+            AnsiConsole.MarkupLine($"[green]✅ Gewonnen:         {gewonnen:F1}s[/]");
         }
-        else if (samenvatting.VorigeBesteMs.HasValue && samenvatting.HuidigeTijdMs < samenvatting.VorigeBesteMs.Value)
+        else
         {
-            var vorige = samenvatting.VorigeBesteMs.Value / 1000.0;
-            var huidig = samenvatting.HuidigeTijdMs / 1000.0;
-            AnsiConsole.MarkupLine($"[cyan1]⬆️  Beter dan vorige keer!  {vorige:F1}s → {huidig:F1}s[/]");
-        }
-        else if (samenvatting.VorigeBesteMs.HasValue)
-        {
-            var record = samenvatting.VorigeBesteMs.Value / 1000.0;
+            var record = samenvatting.VorigeBesteMs!.Value / 1000.0;
             var huidig = samenvatting.HuidigeTijdMs / 1000.0;
             var verschil = huidig - record;
-            AnsiConsole.MarkupLine($"[white]Persoonlijk record staat nog op {record:F1}s  (nog {verschil:F1}s te winnen)[/]");
+            AnsiConsole.MarkupLine($"[white]⏱️  Jouw tijd:          {huidig:F1}s[/]");
+            AnsiConsole.MarkupLine($"[white]🏆 Persoonlijk record:  {record:F1}s[/]");
+            AnsiConsole.MarkupLine($"[yellow]📉 Nog te winnen:        {verschil:F1}s[/]");
         }
 
         // 2. Hall of Fame positie
@@ -92,10 +94,8 @@ public class PrestatieschermScherm : IScherm
             AnsiConsole.Write(table);
         }
 
-        // 4. Aanmoediging (alleen als niets verbeterd en niet eerste game)
-        if (!samenvatting.IsEersteGame && !samenvatting.IsNieuwPersoonlijkRecord
-            && samenvatting.VerbeterdeSommen.Count == 0
-            && !(samenvatting.VorigeBesteMs.HasValue && samenvatting.HuidigeTijdMs < samenvatting.VorigeBesteMs.Value))
+        // 4. Aanmoediging (alleen als niets verbeterd en niet eerste game en niet nieuw record)
+        if (!samenvatting.IsEersteGame && !samenvatting.IsNieuwPersoonlijkRecord && samenvatting.VerbeterdeSommen.Count == 0)
         {
             AnsiConsole.WriteLine();
             AnsiConsole.MarkupLine("[yellow]💪 Blijf oefenen![/]");
@@ -114,6 +114,7 @@ public class PrestatieschermScherm : IScherm
             _hallOfFameScherm.InitieleModusFilter = Modus;
             _hallOfFameScherm.InitieleSpelerFilterId = PlayerId;
             _hallOfFameScherm.InitieleSpelerFilterNaam = SpelerNaam;
+            _hallOfFameScherm.HuidigeSessionId = SessionId;
             await _navigatie.NaarAsync(_hallOfFameScherm);
         }
     }

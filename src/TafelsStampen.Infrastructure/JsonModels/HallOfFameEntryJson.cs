@@ -3,6 +3,7 @@ namespace TafelsStampen.Infrastructure.JsonModels;
 public class HallOfFameEntryJson
 {
     public Guid Id { get; set; }
+    public Guid SessionId { get; set; }
     public Guid PlayerId { get; set; }
     public string PlayerName { get; set; } = string.Empty;
     public int TableNumber { get; set; }

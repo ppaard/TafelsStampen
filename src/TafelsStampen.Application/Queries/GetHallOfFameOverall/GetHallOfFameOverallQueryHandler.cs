@@ -35,7 +35,7 @@ public class GetHallOfFameOverallQueryHandler : IQueryHandler<GetHallOfFameOvera
             .Where(e => query.PlayerFilter == null || e.PlayerId == query.PlayerFilter)
             .OrderBy(e => e.TotalTimeMs)
             .ThenBy(e => e.ErrorCount)
-            .Select((e, i) => new HallOfFameEntryDto(i + 1, e.PlayerName, e.TableNumber, e.TotalTimeMs, e.ErrorCount, e.Date, e.Mode))
+            .Select((e, i) => new HallOfFameEntryDto(e.SessionId, i + 1, e.PlayerName, e.TableNumber, e.TotalTimeMs, e.ErrorCount, e.Date, e.Mode))
             .ToList();
     }
 }

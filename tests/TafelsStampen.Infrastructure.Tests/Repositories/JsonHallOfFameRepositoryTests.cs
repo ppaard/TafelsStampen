@@ -18,8 +18,8 @@ public class JsonHallOfFameRepositoryTests : IDisposable
     [Fact]
     public async Task Save_AndGetByTable_ReturnsCorrectEntries()
     {
-        await _repo.SaveAsync(new HallOfFameEntry(Guid.NewGuid(), "Jan", 3, 5000, 1));
-        await _repo.SaveAsync(new HallOfFameEntry(Guid.NewGuid(), "Kees", 5, 3000, 0));
+        await _repo.SaveAsync(new HallOfFameEntry(Guid.NewGuid(), Guid.NewGuid(), "Jan", 3, 5000, 1));
+        await _repo.SaveAsync(new HallOfFameEntry(Guid.NewGuid(), Guid.NewGuid(), "Kees", 5, 3000, 0));
 
         var table3 = await _repo.GetByTableAsync(3);
         table3.Count.ShouldBe(1);
@@ -29,8 +29,8 @@ public class JsonHallOfFameRepositoryTests : IDisposable
     [Fact]
     public async Task GetAll_ReturnsAllEntries()
     {
-        await _repo.SaveAsync(new HallOfFameEntry(Guid.NewGuid(), "Jan", 3, 5000, 1));
-        await _repo.SaveAsync(new HallOfFameEntry(Guid.NewGuid(), "Kees", 5, 3000, 0));
+        await _repo.SaveAsync(new HallOfFameEntry(Guid.NewGuid(), Guid.NewGuid(), "Jan", 3, 5000, 1));
+        await _repo.SaveAsync(new HallOfFameEntry(Guid.NewGuid(), Guid.NewGuid(), "Kees", 5, 3000, 0));
 
         var all = await _repo.GetAllAsync();
         all.Count.ShouldBe(2);
@@ -39,7 +39,7 @@ public class JsonHallOfFameRepositoryTests : IDisposable
     [Fact]
     public async Task GetByTable_NoMatches_ReturnsEmpty()
     {
-        await _repo.SaveAsync(new HallOfFameEntry(Guid.NewGuid(), "Jan", 3, 5000, 1));
+        await _repo.SaveAsync(new HallOfFameEntry(Guid.NewGuid(), Guid.NewGuid(), "Jan", 3, 5000, 1));
         var result = await _repo.GetByTableAsync(7);
         result.Count.ShouldBe(0);
     }

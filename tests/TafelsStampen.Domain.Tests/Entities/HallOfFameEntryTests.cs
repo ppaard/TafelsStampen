@@ -9,7 +9,7 @@ public class HallOfFameEntryTests
     public void Create_SetsAllPropertiesAndGeneratesId()
     {
         var playerId = Guid.NewGuid();
-        var entry = new HallOfFameEntry(playerId, "Jan", 3, 45000, 2, GameMode.Willekeurig);
+        var entry = new HallOfFameEntry(Guid.NewGuid(), playerId, "Jan", 3, 45000, 2, GameMode.Willekeurig);
 
         entry.Id.ShouldNotBe(Guid.Empty);
         entry.PlayerId.ShouldBe(playerId);
@@ -24,7 +24,7 @@ public class HallOfFameEntryTests
     [Fact]
     public void Create_DefaultMode_IsVolgorde()
     {
-        var entry = new HallOfFameEntry(Guid.NewGuid(), "Jan", 3, 45000, 0);
+        var entry = new HallOfFameEntry(Guid.NewGuid(), Guid.NewGuid(), "Jan", 3, 45000, 0);
         entry.Mode.ShouldBe(GameMode.Volgorde);
     }
 
@@ -35,7 +35,8 @@ public class HallOfFameEntryTests
         var playerId = Guid.NewGuid();
         var date = new DateTime(2024, 3, 1, 12, 0, 0, DateTimeKind.Utc);
 
-        var entry = HallOfFameEntry.Reconstitute(id, playerId, "Kees", 5, 30000, 0, date, GameMode.Willekeurig);
+        var sessionId = Guid.NewGuid();
+        var entry = HallOfFameEntry.Reconstitute(id, sessionId, playerId, "Kees", 5, 30000, 0, date, GameMode.Willekeurig);
 
         entry.Id.ShouldBe(id);
         entry.PlayerId.ShouldBe(playerId);
